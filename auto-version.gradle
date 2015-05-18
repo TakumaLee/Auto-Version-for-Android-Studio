@@ -110,22 +110,6 @@ task incrementVersion {
     }
 }
 
-//def autoIncrementVariant = { variant ->
-//    if (variant.buildType.name == buildTypes.release.name) { // don't increment on debug builds
-//        variant.preBuild.dependsOn incrementVersion
-//        incrementVersion.doLast {
-//            println("Output1: ${variant.buildType.name}")
-//
-//            variant.mergedFlavor.versionName = calculateVersionName()
-//            variant.mergedFlavor.versionCode = calculateVersionCode()
-//
-//            checkVersion()
-//        }
-//    } else {
-//        println("Output2: ${variant.buildType.name}")
-//        variant.mergedFlavor.versionName = calculateDebugVersionName()
-//    }
-//}
 def autoBuildApk = { variant ->
     variant.outputs.each { output ->
         def readFile = readVersion()
@@ -151,50 +135,22 @@ if (plugins.hasPlugin('android') || plugins.hasPlugin('android-library')) {
             versionCode = calculateVersionCode()
         }
 
-        gradle.addBuildListener(new BuildListener() {
-            @Override
-            void buildStarted(Gradle gradle) {
-                println("buildStarted")
-            }
-
-            @Override
-            void settingsEvaluated(Settings settings) {
-                println("settingsEvaluated")
-            }
-
-            @Override
-            void projectsLoaded(Gradle gradle) {
-                println("projectsLoaded")
-            }
-
-            @Override
-            void projectsEvaluated(Gradle gradle) {
-
-                println("projectsEvaluated")
-                if (gradle.getTaskGraph().getAllTasks().last().name.contains("release") ||
-                        gradle.getTaskGraph().getAllTasks().last().name.contains("Release")) {
+        gradle.projectsEvaluated {
+            println("projectsEvaluated")
+            try {
+                if (gradle.taskGraph.getAllTasks().last().name.contains("release") ||
+                        gradle.taskGraph.getAllTasks().last().name.contains("Release")) {
                     println("Output incrementVersion")
                     incrementVersionNumber()
                 }
-//                Task task = gradle.taskGraph.allTasks.last()
-//                def taskName = task.name
-//                printIn("Last Task name : $taskName")
+
+            } catch (TaskExecutionException) {
 
             }
-
-            @Override
-            void buildFinished(BuildResult result) {
-
-            }
-        })
+        }
 
         gradle.buildFinished {
             println("Build End")
-//            if (gradle.taskGraph.allTasks.last().name.contains("release")) {
-//                Task task = gradle.taskGraph.allTasks.last()
-//                def taskName = task.name
-//                printIn("Last Task name : $taskName")
-//            }
         }
 
         afterEvaluate {
