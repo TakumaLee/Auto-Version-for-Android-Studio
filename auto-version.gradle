@@ -156,6 +156,7 @@ if (plugins.hasPlugin('android') || plugins.hasPlugin('android-library')) {
         afterEvaluate {
 
             def mergeFlavor = { variant ->
+                checkVersion()
                 if (variant.buildType.name == buildTypes.release.name) { // don't increment on debug builds
                     variant.preBuild.doLast {
                         println("Output1: ${variant.buildType.name}")
