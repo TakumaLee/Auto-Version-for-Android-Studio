@@ -14,10 +14,20 @@ ext {
     calculateVersionCode = {
         def version = readVersion()
         def versionCode = version['VERSION_CODE'] as int
-//        def major = version['major'] as int // 1..∞
-//        def minor = version['minor'] as int // 0..99
-//        def build = version['build'] as int // 0..999
         return versionCode
+    }
+
+    calculateAPKVersionName = {
+        def version = readVersion()
+        def build = version['build'] as int
+        build--
+        return "${version['major']}.${version['minor']}.${build.toString()}"
+    }
+
+    calculateAPKVersionCode = {
+        def version = readVersion()
+        def versionCode = version['VERSION_CODE'] as int
+        return versionCode - 1
     }
 }
 
@@ -161,8 +171,8 @@ if (plugins.hasPlugin('android') || plugins.hasPlugin('android-library')) {
                     variant.preBuild.doLast {
                         println("Output1: ${variant.buildType.name}")
 
-                        variant.mergedFlavor.versionName = calculateVersionName()
-                        variant.mergedFlavor.versionCode = calculateVersionCode()
+                        variant.mergedFlavor.versionName = calculateAPKVersionName()
+                        variant.mergedFlavor.versionCode = calculateAPKVersionCode()
                         checkVersion()
                     }
                 } else {
