@@ -27,7 +27,10 @@ ext {
     calculateAPKVersionCode = {
         def version = readVersion()
         def versionCode = version['VERSION_CODE'] as int
-        return versionCode - 1
+        if (versionCode > 1)
+            return versionCode - 1
+        else
+            return versionCode
     }
 }
 
